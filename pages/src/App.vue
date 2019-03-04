@@ -1,8 +1,15 @@
 <template>
   <div id="app">
-  	<p style="font-size: 1rem;">重案发生大的</p>
+  	<van-nav-bar
+      title="页面"
+      left-text=""
+      right-text="按钮"
+      left-arrow
+      @click-left="onClickLeft"
+      @click-right="onClickRight"
+    />
     <router-view/>
-     <tab-bar/>
+    <tab-bar/>
   </div>
 </template>
 
@@ -11,7 +18,7 @@ import TabBar from '@/components/TabBar.vue';
 
 (function() {
 	var html = document.querySelector("html"),
-		rem = html.offsetWidth / 7.5;
+	rem = html.offsetWidth / 7.5;
 	html.style.fontSize = rem + "px";
 })();
 
@@ -21,11 +28,23 @@ export default {
 			TabBar
 	},
 	mounted(){
-	}
+  },
+  methods: {
+    onClickLeft() {
+      Toast('返回');
+    },
+    onClickRight() {
+      Toast('按钮');
+    }
+  }
 };
 </script>
 
 <style>
+body{
+  height: 100%;
+  overflow: hidden;
+}
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
