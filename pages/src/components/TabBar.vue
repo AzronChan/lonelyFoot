@@ -1,6 +1,6 @@
 <template>
 	<div class="tabbar">
-		<van-tabbar v-model="active">			
+		<van-tabbar fixed v-model="active">			
 			<van-tabbar-item icon="home-o" to="home">首页</van-tabbar-item>
 			<van-tabbar-item icon="search" to="release">发布</van-tabbar-item>
 			<van-tabbar-item icon="friends-o" info="5">标签</van-tabbar-item>

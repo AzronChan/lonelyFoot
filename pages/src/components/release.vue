@@ -58,26 +58,33 @@ export default {
 .main{
     overflow-y: auto;
     overflow-x: hidden;
-    height: 10.8rem;
+    height: auto;
+    position: absolute;
+    top: 61.33px;
+    bottom: 50px;
+    width: 100%;
 }
 .vanUp{
     width: 100%;
-    height: 5rem;
+    height: 200px;
     border-top: 1px solid #ccc;
     border-bottom:1px solid #ccc;
     margin: 0 auto;
-    display: flex;//flex布局
-    justify-content: center;//使子项目水平居中
-    align-items: center;//使子项目垂直居中
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .vanRa{
-    margin-left: 0.3rem;
+    margin-left: 10px;
 }
 .tagText{
     width: 99%;
-    height: 0.5rem;
-    line-height: 0.5rem;
-    font-size: 0.4rem;
+    height: 20px;
+    line-height: 20px;
+    font-size: 14px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
 }
 </style>
 
