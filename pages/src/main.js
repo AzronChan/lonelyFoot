@@ -13,7 +13,6 @@ Vue.directive('focus', {
     }
 })
 
-
 new Vue({
     el: '#app',
     router,
