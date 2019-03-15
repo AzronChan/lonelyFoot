@@ -8,12 +8,17 @@
             <!-- 上传图片区域 -->
             <van-uploader :after-read="onRead" :class="isUp?'vanPlus':'vanUp'">
                 <van-icon name="plus" class="iconSize"/>                
-                <!-- 需要图片回显只能使用img后再用js把file.content的值传回 -->
-                <!-- <img src="https://b.yzcdn.cn/vant/icon-demo-1126.png" alt="上传图片" style="width: 1rem;heigth: 1rem"> -->
             </van-uploader>
             <!-- 删除图片区域 -->
             <div :class="isUp?'vanCross':''" v-if="isUp">
                 <van-icon name="cross" class="iconSize" @click='deleteImg(swipeIndex)'/>
+            </div>
+            <!-- 图片管理区域 -->
+            <div :class="isUp?'vanLabel':''" v-if="isUp">
+                <van-icon name="label-o" class="iconSize" @click="controlImg"/>
+                <!-- 如何实现点击这个图标的时候打开图片管理页面
+                1.通过把子组件放到弹层？
+                2.通过路由跳转打开？ -->
             </div>
         </div>
         <!-- 留言区域 -->
@@ -26,11 +31,20 @@
         />
         </van-cell-group>
         <!-- 标签区域 -->
-        <div>
-            <van-tag :class="[{'tagBg': item.bgColor},'vanTag']" plain v-for="(item, i) in tagList" :key="item.id" @click="checkTag(i)">{{ item.content }}</van-tag>
+        <div class="mainTag">
+            <van-tag :class="[{'tagBg': item.bgColor},'vanTag']" plain v-for="(item, i) in tagList" :key="item.id" @click="checkTag(i)">
+                <transition>
+                    <div class="tag" @click.stop="deleteTag(i)" v-if="item.isTag">
+                        <div class="arrow">
+                            <em></em><span></span>
+                        </div>
+                        删除
+                    </div>
+                </transition>               
+                {{ item.content }}
+            </van-tag>    
             <van-icon name="plus" size='0.3rem' @click='showText' v-if="flagTwo"/>
-            <input type="text" class="tagText" v-if="flagOne" v-model="content" placeholder="输入印象" v-focus>
-            <van-button size="mini" @click="textShow" v-if="flagOne">确定</van-button>
+            <input type="text" class="tagText" v-if="flagOne" v-model="content" placeholder="输入菜系" v-focus @blur="textShow">
         </div>
         <!-- 评分区域 -->
         <van-rate v-model="value" class="vanRa"/>
@@ -42,6 +56,8 @@
 import { ImagePreview } from 'vant'
 //导入弹出框组件
 import { Dialog } from 'vant' 
+//导入图片管理子组件
+import controlImgs from '../subcomponents/controlImg.vue'
 export default {
     data() {
         return {
@@ -53,12 +69,12 @@ export default {
             tagList: [//存放标签，自动显示一个标签
                 { id: 0, bgColor: false, content: '客家菜'}
             ],
+            tagLists: [],
             content: '',//标签的内容
             imgList: [],//存放图片
             isSelectImg: false,  //开启弹窗标志
             isUp: false, //定义是否上传了图片
             swipeIndex: '' //存放当前轮播图片的索引
-
         }
     },
     methods: {
@@ -82,7 +98,7 @@ export default {
             if(this.content.trim().length === 0) {
                 return this.$toast('不能为空')
             }else{
-                var taglist = { id: this.id, bgColor: true, content: this.content }
+                var taglist = { id: this.id, bgColor: false, content: this.content, isTag: false, }
                 this.tagList.push(taglist)
                 this.id++
                 this.content = ''
@@ -90,12 +106,25 @@ export default {
         },
         checkTag(i) {
             this.tagList[i].bgColor =!this.tagList[i].bgColor
+            this.tagList[i].isTag =!this.tagList[i].isTag
+            this.tagList.forEach(item => {
+                if(this.tagList[i].bgColor == item.bgColor){
+                    this.tagLists = this.tagList.filter((v, j) => j !== i)
+                }
+            })
+            this.tagLists.forEach(item => {
+                item.bgColor = false
+                item.isTag = false
+            })
+        },
+        deleteTag(i){
+            this.tagList.splice(i,1)
         },
         onChange(index) {
-            this.swipeIndex = index;
+            this.swipeIndex = index
         },
         clickImg() {
-            ImagePreview(this.imgList);
+            ImagePreview(this.imgList)
         },
         deleteImg(index) {
             Dialog.confirm({
@@ -107,9 +136,21 @@ export default {
                 }
             }).catch(() => {
             // on cancel
-            });
-            
+            })           
+        },
+        controlImg() {
+            return this.$toast('暂未开放')
         }
+    },
+    directives: {
+        'focus': {
+            inserted: (el => {
+                el.focus();
+            })
+        }
+    },
+    components: {
+        controlImgs
     }
 }
 </script>
@@ -118,7 +159,6 @@ export default {
 .main{
     overflow-y: auto;
     overflow-x: hidden;
-    height: 10.8rem;
     .mainImg{
         display: flex;//flex布局
         justify-content: center;//使子项目水平居中
@@ -158,7 +198,11 @@ export default {
         }
         .vanCross{
             @extend .vanUp;
-            right: 2rem;
+            left: 3.5rem;
+        }
+        .vanLabel{
+            @extend .vanUp;
+            left: 5rem;
         }
     }   
     .vanRa{
@@ -175,12 +219,61 @@ export default {
         border-right: none;
         border-bottom: 2px solid #ccc;
     }
-    .vanTag{
-        margin-left: 0.1rem;
-    }
-    .tagBg{
-        background: red!important;
-    }
+    .mainTag{
+        padding: 0 0.3rem;
+        .vanTag{
+            margin-left: 0.1rem;
+            position: relative;
+            .tag{ 
+                width:0.9rem; 
+                height:0.4rem; 
+                line-height: 0.4rem;
+                border:0.05rem solid #292929; 
+                color: #FFF;
+                position: absolute;; 
+                background-color:#292929;
+                text-align: center;
+                top: -0.6rem;
+                left: 0.01rem;
+                border-radius: 5px;
+                .arrow{ 
+                    position:absolute; 
+                    width:0.2rem; 
+                    height:0.2rem; 
+                    bottom:-0.2rem; 
+                    left:0.22rem;
+                    *{ 
+                        display:block; 
+                        border-width:0.2rem; 
+                        position:absolute; 
+                        border-style:solid dashed dashed dashed; 
+                        font-size:0; 
+                        line-height:0; 
+                    }
+                    em{ 
+                        border-color:#292929 transparent transparent;
+                    }
+                    span{ 
+                        border-color:#292929 transparent transparent; 
+                        top:-0.05rem;
+                    }
+                }
+            }       
+        }
+        .tagBg{
+            background: #292929!important;
+            color: #fff!important;
+        }
+        .v-enter,
+        .v-leave-to{
+            opacity: 0;
+            transform: translateY(0.5rem);
+        }
+        .v-enter-active,
+        .v-leave-active{
+            transition: all 1s ease;
+        }
+    } 
 }
 </style>
 

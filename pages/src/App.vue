@@ -5,6 +5,7 @@
       left-text=""
       right-text="按钮"
       left-arrow
+      fixed
       @click-left="onClickLeft"
       @click-right="onClickRight"
     />
@@ -41,17 +42,13 @@ export default {
 </script>
 
 <style>
-html,
-body{
-  height: 100%;
-  overflow: hidden;
-  padding: 0;
-  margin: 0;
-}
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+  padding-top: 1.22rem;
+  padding-bottom: 1.33rem;
+  overflow-x: hidden;
 }
 </style>
