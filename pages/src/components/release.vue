@@ -1,25 +1,30 @@
 <template>
-    <div class="main">
+    <div class="record">
         <div class="mainImg">
             <!-- 展示图片区域 -->
             <van-swipe class="imgList" :autoplay="3000" indicator-color="white"  @change="onChange">
-                <van-swipe-item v-for="item in imgList"><img class="goodsImg" :src="item" @click="clickImg()"></van-swipe-item>
+                <van-swipe-item v-for="item in imgList">
+                	<img class="goodsImg" :src="item" @click="clickImg()">
+                </van-swipe-item>
             </van-swipe>
             <!-- 上传图片区域 -->
-            <van-uploader :after-read="onRead" :class="isUp?'vanPlus':'vanUp'">
-                <van-icon name="plus" class="iconSize"/>                
-            </van-uploader>
-            <!-- 删除图片区域 -->
-            <div :class="isUp?'vanCross':''" v-if="isUp">
-                <van-icon name="cross" class="iconSize" @click='deleteImg(swipeIndex)'/>
+            <div class="record_handle">
+            	<van-uploader :after-read="onRead" :class="['record_handle_item']">
+	                <van-icon name="plus" class="iconSize"/>                
+	            </van-uploader>
+	            <!-- 删除图片区域 -->
+	            <div :class="['record_handle_item']" v-if="isUp">
+	                <van-icon name="cross" class="iconSize" @click='deleteImg(swipeIndex)'/>
+	            </div>
+	            <!-- 图片管理区域 -->
+	            <div :class="['record_handle_item']" v-if="isUp">
+	                <van-icon name="label-o" class="iconSize" @click="controlImg"/>
+	                <!-- 如何实现点击这个图标的时候打开图片管理页面
+	                1.通过把子组件放到弹层？
+	                2.通过路由跳转打开？ -->
+	            </div>
             </div>
-            <!-- 图片管理区域 -->
-            <div :class="isUp?'vanLabel':''" v-if="isUp">
-                <van-icon name="label-o" class="iconSize" @click="controlImg"/>
-                <!-- 如何实现点击这个图标的时候打开图片管理页面
-                1.通过把子组件放到弹层？
-                2.通过路由跳转打开？ -->
-            </div>
+            
         </div>
         <!-- 留言区域 -->
         <van-cell-group>
@@ -32,7 +37,7 @@
         </van-cell-group>
         <!-- 标签区域 -->
         <div class="mainTag">
-            <van-tag :class="[{'tagBg': item.bgColor},'vanTag']" plain v-for="(item, i) in tagList" :key="item.id" @click="checkTag(i)">
+            <!--<van-tag :class="[{'tagBg': item.bgColor},'vanTag']" plain v-for="(item, i) in tagList" :key="i" @click="checkTag(i)">
                 <transition>
                     <div class="tag" @click.stop="deleteTag(i)" v-if="item.isTag">
                         <div class="arrow">
@@ -40,9 +45,9 @@
                         </div>
                         删除
                     </div>
-                </transition>               
+                </transition>
                 {{ item.content }}
-            </van-tag>    
+            </van-tag>    -->
             <van-icon name="plus" size='0.3rem' @click='showText' v-if="flagTwo"/>
             <input type="text" class="tagText" v-if="flagOne" v-model="content" placeholder="输入菜系" v-focus @blur="textShow">
         </div>
@@ -58,6 +63,7 @@ import { ImagePreview } from 'vant'
 import { Dialog } from 'vant' 
 //导入图片管理子组件
 import controlImgs from '../subcomponents/controlImg.vue'
+
 export default {
     data() {
         return {
@@ -156,53 +162,47 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.main{
-    overflow-y: auto;
-    overflow-x: hidden;
+.record{
     .mainImg{
-        display: flex;//flex布局
-        justify-content: center;//使子项目水平居中
-        align-items: center;//使子项目垂直居中
         position: relative;
-        border: 1px solid #ccc;
         width: 100%;
-        height: 4rem;
+        height: 6.3rem;
+        background: #ededed;
         .imgList{
             width: 100%;
-            height: 4rem;
+            height:6.3rem;
             .goodsImg{
+            	position: absolute;
+            	top: 50%;
+            	left: 0;
+            	transform: translate(0,-50%);
                 width: auto;
                 height: auto;
                 max-width: 100%;
             }          
         }
-        .vanUp{
-            width: 1rem;
-            height: 1rem;
-            margin: 0 auto;
-            border: 1px solid #ccc;
-            position: absolute;
-            display: flex;//flex布局
-            justify-content: center;//使子项目水平居中
-            align-items: center;//使子项目垂直居中
-            background: #ccc;
-            opacity: 0.5;
-            font-size: 0.24rem;
+        .record_handle {
+        	position: absolute;
+        	display: flex;
+        	justify-content: center;
+        	width: 100%;
+        	top: 50%;
+        	left: 0px;
+        	transform: translate(0,-50%);
+        	.record_handle_item{
+	            width: 1.6rem;
+	            height: 1.6rem;
+	            margin: 0 auto;
+	            display: flex;
+	            justify-content: center;
+	            align-items: center;
+	            background: rgba(0,0,0,0.2);
+	            overflow: hidden;
+	        }
         }
         .iconSize{
             font-size: 0.5rem;
-        }
-        .vanPlus{
-            @extend .vanUp;
-            left: 2rem;
-        }
-        .vanCross{
-            @extend .vanUp;
-            left: 3.5rem;
-        }
-        .vanLabel{
-            @extend .vanUp;
-            left: 5rem;
+            color: #fff;
         }
     }   
     .vanRa{

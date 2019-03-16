@@ -9,7 +9,9 @@
       @click-left="onClickLeft"
       @click-right="onClickRight"
     />
-    <router-view/>
+    <div class="main">
+    	<router-view/>
+    </div>
     <tab-bar/>
   </div>
 </template>
@@ -41,14 +43,19 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+@import url("./assets/css/base.scss");
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  padding-top: 1.22rem;
-  padding-bottom: 1.33rem;
+  /*padding-top: 1.22rem;*/
+  /*padding-bottom: 1.33rem;*/
   overflow-x: hidden;
+}
+.main {
+	padding: 0.92rem 0 0;
 }
 </style>
