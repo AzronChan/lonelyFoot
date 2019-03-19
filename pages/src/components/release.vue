@@ -3,8 +3,8 @@
         <div class="mainImg">
             <!-- 展示图片区域 -->
             <van-swipe class="imgList" :autoplay="3000" indicator-color="white"  @change="onChange">
-                <van-swipe-item v-for="item in imgList">
-                	<img class="goodsImg" :src="item" @click="clickImg()">
+                <van-swipe-item v-for="item in $store.state.imgsList" :key="item.id">
+                	<img class="goodsImg" :src="item.url" @click="clickImg()">
                 </van-swipe-item>
             </van-swipe>
             <!-- 上传图片区域 -->
@@ -13,11 +13,11 @@
 	                <van-icon name="plus" class="iconSize"/>                
 	            </van-uploader>
 	            <!-- 删除图片区域 -->
-	            <div :class="['record_handle_item']" v-if="isUp">
-	                <van-icon name="cross" class="iconSize" @click='deleteImg(swipeIndex)'/>
+	            <div :class="['record_handle_item']" v-if="$store.state.isUp">
+	                <van-icon name="cross" class="iconSize" @click='deImg(swipeIndex)'/>
 	            </div>
 	            <!-- 图片管理区域 -->
-	            <div :class="['record_handle_item']" v-if="isUp">
+	            <div :class="['record_handle_item']" v-if="$store.state.isUp">
 	                <van-icon name="label-o" class="iconSize" @click="controlImg"/>
 	                <!-- 如何实现点击这个图标的时候打开图片管理页面
 	                1.通过把子组件放到弹层？
@@ -37,7 +37,7 @@
         </van-cell-group>
         <!-- 标签区域 -->
         <div class="mainTag">
-            <!--<van-tag :class="[{'tagBg': item.bgColor},'vanTag']" plain v-for="(item, i) in tagList" :key="i" @click="checkTag(i)">
+            <van-tag :class="[{'tagBg': item.bgColor},'vanTag']" plain v-for="(item, i) in tagList" :key="item.id" @click="checkTag(i)">
                 <transition>
                     <div class="tag" @click.stop="deleteTag(i)" v-if="item.isTag">
                         <div class="arrow">
@@ -47,7 +47,7 @@
                     </div>
                 </transition>
                 {{ item.content }}
-            </van-tag>    -->
+            </van-tag>
             <van-icon name="plus" size='0.3rem' @click='showText' v-if="flagTwo"/>
             <input type="text" class="tagText" v-if="flagOne" v-model="content" placeholder="输入菜系" v-focus @blur="textShow">
         </div>
@@ -59,10 +59,6 @@
 <script>
 //导入图片预览组件
 import { ImagePreview } from 'vant'
-//导入弹出框组件
-import { Dialog } from 'vant' 
-//导入图片管理子组件
-import controlImgs from '../subcomponents/controlImg.vue'
 
 export default {
     data() {
@@ -79,28 +75,37 @@ export default {
             content: '',//标签的内容
             imgList: [],//存放图片
             isSelectImg: false,  //开启弹窗标志
-            isUp: false, //定义是否上传了图片
             swipeIndex: '' //存放当前轮播图片的索引
         }
     },
     methods: {
         onRead(file) {
-            // 把上传的图片存起来
-            if(this.imgList.length <=9){
-                this.imgList.push(file.content)
-                this.isUp = true
+            // 控制图片上传上限为9张
+            if(this.$store.state.imgsList.length <=9){
+                // 把上传的图片存到vuex中,like是否置顶，url图片地址
+                this.$store.state.imgsList.push({
+                    like: false,
+                    url: file.content
+                })
+                this.$store.state.imgView.push(file.content)
+                // 当有图片上传后把删除和图片管理按钮放出来
+                this.$store.state.isUp = true
             }else{
                  return this.$toast('只能上传9张图片')
             }
             
         },
+        // 点击+图片时显示输入框同时隐藏+图标
         showText() {
             this.flagTwo=!this.flagTwo
             this.flagOne=!this.flagOne
         },
+        // 当输入框失去焦点时触发
         textShow() {
+            // 隐藏输入框同时显示+图标
             this.flagOne=!this.flagOne
             this.flagTwo=!this.flagTwo
+            // 输入不能为空
             if(this.content.trim().length === 0) {
                 return this.$toast('不能为空')
             }else{
@@ -110,53 +115,51 @@ export default {
                 this.content = ''
             }
         },
+        // 点击标签时触发
         checkTag(i) {
+            // 改变背景颜色，并显示删除按钮
             this.tagList[i].bgColor =!this.tagList[i].bgColor
             this.tagList[i].isTag =!this.tagList[i].isTag
+            // 循环当前标签数组，把当前下标之外的其它元素存到另一个空数组中
             this.tagList.forEach(item => {
                 if(this.tagList[i].bgColor == item.bgColor){
                     this.tagLists = this.tagList.filter((v, j) => j !== i)
                 }
             })
+            // 把这个数组中的颜色取消，删除按钮隐藏
             this.tagLists.forEach(item => {
                 item.bgColor = false
                 item.isTag = false
             })
         },
+        // 删除当前点击的标签
         deleteTag(i){
             this.tagList.splice(i,1)
         },
+        // 轮播图发生变化时，把当前下标存起来
         onChange(index) {
             this.swipeIndex = index
         },
+        // 点击图片进入预览模式
         clickImg() {
-            ImagePreview(this.imgList)
+            ImagePreview(this.$store.state.imgView)
         },
-        deleteImg(index) {
-            Dialog.confirm({
-                message: '确认删除图片？'
-            }).then(() => {
-                this.imgList.splice(index,1);
-                if(this.imgList.length == 0){
-                    this.isUp = false
-                }
-            }).catch(() => {
-            // on cancel
-            })           
+        // 删除当前图片
+        deImg(i) {
+            this.$store.commit('deleteImg', i)         
         },
+        // 进入图片管理页面
         controlImg() {
-            return this.$toast('暂未开放')
+            this.$router.push('/controlImg')
         }
     },
     directives: {
+        // 自定义一个获取焦点事件
         'focus': {
             inserted: (el => {
                 el.focus();
             })
         }
-    },
-    components: {
-        controlImgs
     }
 }
 </script>

@@ -51,11 +51,9 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  /*padding-top: 1.22rem;*/
-  /*padding-bottom: 1.33rem;*/
   overflow-x: hidden;
 }
 .main {
-	padding: 0.92rem 0 0;
+	padding: 0.92rem 0 1rem 0;
 }
 </style>
